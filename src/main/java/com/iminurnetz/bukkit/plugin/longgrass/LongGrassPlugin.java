@@ -150,6 +150,7 @@ public class LongGrassPlugin extends BukkitPlugin {
         return false;
     }
     
+    // very much inspired by code in net.minecraft.server.ChunkProviderGenerate
     private void growPlants(Chunk chunk) {
         int bx = chunk.getX() << 4;
         int bz = chunk.getZ() << 4;
@@ -215,6 +216,7 @@ public class LongGrassPlugin extends BukkitPlugin {
         }
     }
 
+    // almost identical to net.minecraft.server.WorldGenFlowers
     private boolean randomizeGrowth(World world, Random random, Material material, byte data, int x, int y, int z) {
         int targetBlockMaterialId = world.getBlockTypeIdAt(x, y, z);
 
@@ -237,6 +239,7 @@ public class LongGrassPlugin extends BukkitPlugin {
         return true;
     }
 
+    // same logic as in net.minecraft.server.BlockFlower/BlockDeadBush
     private boolean canGrowHere(Block block, Material material) {
         Material targetMaterial = block.getRelative(BlockFace.DOWN).getType();
         return (block.getLightLevel() >= 8 && 
