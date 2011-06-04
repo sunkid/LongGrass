@@ -228,7 +228,7 @@ public class LongGrassPlugin extends BukkitPlugin {
             int ty = y + random.nextInt(4) - random.nextInt(4);
             int tz = z + random.nextInt(8) - random.nextInt(8);
             Block block = world.getBlockAt(tx, ty, tz);
-            if (block.getTypeId() == 0 && canGrowFlowersAndGrass(block)) {
+            if (block.getTypeId() == 0 && canGrowHere(block, material)) {
                 // log("Growing " + material + " at " + block.getLocation());
                 block.setTypeIdAndData(material.getId(), data, false);
             }
@@ -237,8 +237,12 @@ public class LongGrassPlugin extends BukkitPlugin {
         return true;
     }
 
-    private boolean canGrowFlowersAndGrass(Block block) {
-        return (block.getLightLevel() >= 8 &&
-                MaterialUtils.isSameMaterial(block.getRelative(BlockFace.DOWN).getType(), Material.DIRT, Material.GRASS, Material.SOIL));
+    private boolean canGrowHere(Block block, Material material) {
+        Material targetMaterial = block.getRelative(BlockFace.DOWN).getType();
+        return (block.getLightLevel() >= 8 && 
+                (
+                  (material == Material.LONG_GRASS && MaterialUtils.isSameMaterial(targetMaterial, Material.DIRT, Material.GRASS, Material.SOIL)) || 
+                  (material == Material.DEAD_BUSH && targetMaterial == Material.SAND))
+                );
     }
 }
