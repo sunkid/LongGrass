@@ -23,36 +23,46 @@
  */
 package com.iminurnetz.bukkit.plugin.longgrass;
 
-import org.bukkit.Chunk;
-import org.bukkit.event.world.ChunkCreateEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.WorldListener;
-import org.bukkit.event.world.WorldLoadEvent;
+/**
+ * Daemon thread to periodically re-grow plants.
+ * @author <a href="mailto:sunkid@iminurnetz.com">sunkid</a>
+ *
+ */
+public class LongGrassMonitor implements Runnable {
 
-public class LGWorldListener extends WorldListener {
-
+    private static final long INTERVAL = 10000;
     private final LongGrassPlugin plugin;
+    private boolean stopped;
     
-    public LGWorldListener(LongGrassPlugin plugin) {
+    public LongGrassMonitor(LongGrassPlugin plugin) {
         this.plugin = plugin;
+        this.stopped = false;
+    }
+    
+    @Override
+    public void run() {
+        // an initial snooze
+        try {
+            Thread.sleep(INTERVAL);
+        } catch (InterruptedException e) {
+            // ignored
+        }
+
+        while (!stopped) {
+            plugin.getGrower().regrowPlants();
+            
+            try {
+                Thread.sleep(INTERVAL);
+            } catch (InterruptedException e) {
+                // ignored
+            }
+        }
+        
+        plugin.log("Monitor thread stopped!");
     }
 
-    @Override
-    public void onChunkLoad(ChunkLoadEvent event) {
-        plugin.getGrower().populateChunk(event.getChunk());
+    public void stop() {
+        stopped = true;
     }
-    
-    @Override
-    public void onChunkCreate(ChunkCreateEvent event) {
-        Chunk chunk = event.getChunk();
-        // plugin.log("new chunk created at " + chunk.getX() + "x" + chunk.getZ() + " in world " + chunk.getWorld().getName());
-        plugin.getChunks().add(new LGChunk(chunk));
-    }
-    
-    // not yet in Bukkit/CraftBukkit
-    public void onWorldLoad(WorldLoadEvent event) {
-        for (Chunk chunk : event.getWorld().getLoadedChunks()) {
-            plugin.getGrower().populateChunk(chunk);
-        }
-    }
+
 }

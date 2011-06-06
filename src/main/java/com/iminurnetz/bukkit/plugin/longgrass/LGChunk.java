@@ -24,8 +24,13 @@
 package com.iminurnetz.bukkit.plugin.longgrass;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.Hashtable;
 
 import org.bukkit.Chunk;
+import org.bukkit.block.Block;
+
+import com.iminurnetz.bukkit.util.SerializableBlockType;
 
 public class LGChunk implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,10 +39,20 @@ public class LGChunk implements Serializable {
     private final int z;
     private final String world;
     
+    private final Hashtable<LGCoordinate, Date> blockLastMowed;
+    private Date lastMowed;
+    private final Hashtable<LGCoordinate, SerializableBlockType> plantMaterial;
+
     public LGChunk(Chunk chunk) {
-        this.x = chunk.getX();
-        this.z = chunk.getZ();
-        this.world = chunk.getWorld().getName();
+        this(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
+    }
+
+    public LGChunk(int x, int z, String world) {
+        this.x = x;
+        this.z = z;
+        this.world = world;
+        blockLastMowed = new Hashtable<LGCoordinate, Date>();
+        plantMaterial = new Hashtable<LGCoordinate, SerializableBlockType>();
     }
 
     public int getX() {
@@ -48,6 +63,18 @@ public class LGChunk implements Serializable {
         return z;
     }
     
+    public String getWorld() {
+        return world;
+    }
+
+    public Hashtable<LGCoordinate, Date> getBlockLastMowed() {
+        return blockLastMowed;
+    }
+
+    public Hashtable<LGCoordinate, SerializableBlockType> getPlantMaterial() {
+        return plantMaterial;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof LGChunk)) {
@@ -66,5 +93,39 @@ public class LGChunk implements Serializable {
     @Override
     public int hashCode() {
         return (37 * x + z) * 31 + world.hashCode();
+    }
+
+    public void markMowed(Block block) {
+        markMowed(block, false);
+    }
+
+    public void markMowed(Block block, boolean canRegrow) {
+        LGCoordinate coord = new LGCoordinate(block);
+        if (canRegrow) {
+            lastMowed = new Date();
+            blockLastMowed.put(coord, lastMowed);
+            plantMaterial.put(coord, new SerializableBlockType(block));
+        } else {
+            blockLastMowed.remove(coord);
+            lastMowed = null;
+            for (LGCoordinate c : blockLastMowed.keySet()) {
+                if (lastMowed == null) {
+                    lastMowed = blockLastMowed.get(c);
+                    continue;
+                }
+
+                if (lastMowed.before(blockLastMowed.get(c))) {
+                    lastMowed = blockLastMowed.get(c);
+                }
+            }
+        }
+    }
+    
+    public Date getLastMowed() {
+        return lastMowed;
+    }
+
+    public void setLastMowed(Date date) {
+        lastMowed = date;
     }
 }

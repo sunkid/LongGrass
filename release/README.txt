@@ -1,10 +1,10 @@
-${project.name} v${project.version} build ${buildNumber}
+LongGrass v2 build 46.20110606
 
 INSTALL and UPGRADE
 
 1. Copy the included jar file to your server's plugin directory
 2. Reload your server
-3. Change any configuration in plugins/${project.name}/config.yml as neccessary
+3. Change any configuration in plugins/LongGrass/config.yml as neccessary
 4. Reload your server
 
 LICENSING

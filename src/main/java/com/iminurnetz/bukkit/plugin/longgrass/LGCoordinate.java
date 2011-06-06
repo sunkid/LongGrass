@@ -23,36 +23,56 @@
  */
 package com.iminurnetz.bukkit.plugin.longgrass;
 
-import org.bukkit.Chunk;
-import org.bukkit.event.world.ChunkCreateEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.WorldListener;
-import org.bukkit.event.world.WorldLoadEvent;
+import java.io.Serializable;
 
-public class LGWorldListener extends WorldListener {
+import org.bukkit.block.Block;
 
-    private final LongGrassPlugin plugin;
+public class LGCoordinate implements Serializable {
+    private static final long serialVersionUID = 1L;
     
-    public LGWorldListener(LongGrassPlugin plugin) {
-        this.plugin = plugin;
+    private final int x;
+    private final int y;
+    private final int z;
+    
+    public LGCoordinate(Block block) {
+        this(block.getX(), block.getY(), block.getZ());
     }
 
+    public LGCoordinate(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+    
+    public int getZ() {
+        return z;
+    }
+    
     @Override
-    public void onChunkLoad(ChunkLoadEvent event) {
-        plugin.getGrower().populateChunk(event.getChunk());
-    }
-    
-    @Override
-    public void onChunkCreate(ChunkCreateEvent event) {
-        Chunk chunk = event.getChunk();
-        // plugin.log("new chunk created at " + chunk.getX() + "x" + chunk.getZ() + " in world " + chunk.getWorld().getName());
-        plugin.getChunks().add(new LGChunk(chunk));
-    }
-    
-    // not yet in Bukkit/CraftBukkit
-    public void onWorldLoad(WorldLoadEvent event) {
-        for (Chunk chunk : event.getWorld().getLoadedChunks()) {
-            plugin.getGrower().populateChunk(chunk);
+    public boolean equals(Object o) {
+        if (!(o instanceof LGCoordinate)) {
+            return false;
         }
+        
+        LGCoordinate that = (LGCoordinate) o;
+        
+        if (that.x == this.x && that.y == this.y && this.z == that.z) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return (37 * x + y) * 31 + z;
     }
 }

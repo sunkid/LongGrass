@@ -4,7 +4,7 @@
   <groupId>com.iminurnetz</groupId>
   <artifactId>bukkit.longgrass-plugin</artifactId>
   <name>LongGrass</name>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>2</version>
   <packaging>jar</packaging>
   <description>LongGrass plugin for Bukkit servers</description>
   <properties>
@@ -107,7 +107,7 @@
             <descriptor>src/assembly/release.xml</descriptor>
           </descriptors>
           <outputDirectory>release</outputDirectory>
-          <finalName>${project.name}-${project.version}</finalName>
+          <finalName>${project.name}</finalName>
           <appendAssemblyId>false</appendAssemblyId>
           <attach>false</attach>
         </configuration>
@@ -118,6 +118,32 @@
             <goals>
               <goal>attached</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+	  <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>release</outputDirectory>
+              <resources>          
+                <resource>
+                  <directory>src/main/resources</directory>
+                  <filtering>true</filtering>
+				  <includes>
+				  	<include>CHANGELOG.txt</include>
+				  	<include>README.txt</include>
+			      </includes>
+                </resource>
+              </resources>              
+            </configuration>            
           </execution>
         </executions>
       </plugin>

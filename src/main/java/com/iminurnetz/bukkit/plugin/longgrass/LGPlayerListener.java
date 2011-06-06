@@ -24,6 +24,9 @@
 package com.iminurnetz.bukkit.plugin.longgrass;
 
 import org.bukkit.Chunk;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -37,10 +40,11 @@ public class LGPlayerListener extends PlayerListener {
         this.plugin = plugin;
     }
 
+    @Override
     public void onPlayerMove(PlayerMoveEvent event) {
         Chunk chunk = event.getTo().getBlock().getChunk();
         if (TimeOfDay.isDay(chunk.getWorld().getFullTime())) {
-            plugin.processChunk(chunk);
+            plugin.getGrower().populateChunk(chunk);
         }
     }
 }

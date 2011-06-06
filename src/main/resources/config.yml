@@ -5,4 +5,22 @@
 # CHANGE THE VERSION IN YOUR config.yml TO THE ONE BELOW.
 settings:
     # version of the last update of the config file
-    version: 0.0
+    version: 2
+    
+    # which tool(s) a player must use for plants to re-grow
+    # tool specifications may exclude the material pre-fix
+    tool: hoe
+    
+    # the plants (or any blocks) that will be "re-grown"
+    plants:
+        - dead bush
+        - long grass
+        
+    # how many seconds to wait before re-growing a plant
+    grow-time: 600 # 10 minutes
+    
+    # how much faster to re-grow plants during a storm
+    rain-factor: 2
+    
+    # how chatty should we be?
+    debug: false

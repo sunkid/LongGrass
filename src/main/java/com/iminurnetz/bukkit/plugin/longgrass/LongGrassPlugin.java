@@ -28,39 +28,48 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginManager;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
-import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class LongGrassPlugin extends BukkitPlugin {
 
-    ArrayList<LGChunk> chunks;
+    private WorldSortedLGChunkList chunks;
+    private LongGrassGrower grower;
+    private LGConfigurationService config;
+    private LongGrassMonitor monitor;
     
     @Override
     public void enablePlugin() throws Exception {
         loadChunks();
-        LGWorldListener worldListener = new LGWorldListener(this, chunks);
+        
+        setGrower(LongGrassGrower.getInstance(this));
+        
+        config = new LGConfigurationService(this);
+        
+        // LGWorldListener worldListener = new LGWorldListener(this);
         LGPlayerListener playerListener = new LGPlayerListener(this);
+        LGBlockListener blockListener = new LGBlockListener(this);
         PluginManager pm = getServer().getPluginManager();
 
         pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Lowest, this);
+        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
         // this will bomb a big map :(
         // pm.registerEvent(Event.Type.CHUNK_LOAD, worldListener, Priority.Lowest, this);
         // not yet in Bukkit/CraftBukkit
         // pm.registerEvent(Event.Type.CHUNK_CREATE, worldListener, Priority.Lowest, this);
+        
+        monitor = new LongGrassMonitor(this);
+        Thread t = new Thread(monitor);
+        t.setDaemon(true);
+        t.start();
         
         log("enabled");
     }
@@ -68,6 +77,12 @@ public class LongGrassPlugin extends BukkitPlugin {
     @Override
     public void onDisable() {
         saveChunkFile();
+        
+        if (monitor != null) {
+            log("Stopping monitor thread");
+            monitor.stop();
+        }
+        
         log("disabled");
     }
 
@@ -76,14 +91,14 @@ public class LongGrassPlugin extends BukkitPlugin {
         
         File chunkCache = getChunksFile();
         if (!chunkCache.exists()) {
-            chunks = new ArrayList<LGChunk>();
+            chunks = new WorldSortedLGChunkList();
             return;
         }
         
         try {
             FileInputStream fis = new FileInputStream(chunkCache);
             ObjectInputStream in = new ObjectInputStream(fis);
-            chunks = (ArrayList<LGChunk>) in.readObject();
+            chunks = (WorldSortedLGChunkList) in.readObject();
             in.close();
             fis.close();
         } catch (Exception e) {
@@ -113,139 +128,65 @@ public class LongGrassPlugin extends BukkitPlugin {
             log(Level.SEVERE, "Cannot cache chunks", e);
         }
     }
-    
-    protected synchronized void processChunk(Chunk chunk) {
-        LGChunk lgChunk = new LGChunk(chunk);
-        
-        if (chunks.contains(lgChunk)) {
-            return;
-        }
-        
-        // see if long grass or dead bushes exists in this chunk
-        if (!doesChunkHavePlants(chunk)) {
-            // log("Growing plants in chunk " + chunk.getX() + "x" + chunk.getZ());
-            growPlants(chunk);
-        }
-        
-        chunks.add(lgChunk);        
+
+    public void setGrower(LongGrassGrower grower) {
+        this.grower = grower;
     }
 
-    private boolean doesChunkHavePlants(Chunk chunk) {
-        int bx = chunk.getX() << 4;
-        int bz = chunk.getZ() << 4;
+    public LongGrassGrower getGrower() {
+        return grower;
+    }
 
-        World world = chunk.getWorld();
+    public WorldSortedLGChunkList getChunks() {
+        return chunks;
+    }
 
-        for (int xx = bx; xx < bx + 16; xx++) {
-            for (int zz = bz; zz < bz + 16; zz++) {
-                for (int yy = 0; yy < 128; yy++) {
-                    int typeId = world.getBlockTypeIdAt(xx, yy, zz);                    
-                    if (typeId == Material.LONG_GRASS.getId() || typeId == Material.DEAD_BUSH.getId()) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+    public synchronized void setChunks(List<LGChunk> chunks) {
+        this.chunks.removeAll(this.chunks);
+        this.chunks.addAll(chunks);
     }
     
-    // very much inspired by code in net.minecraft.server.ChunkProviderGenerate
-    private void growPlants(Chunk chunk) {
-        int bx = chunk.getX() << 4;
-        int bz = chunk.getZ() << 4;
+    protected LGConfigurationService getConfig() {
+        return config;
+    }
 
-        int tx;
-        int tz;
-        int ty;
+    public void markMowed(Block block, boolean canRegrow) {
+        LGChunk chunk = getLGChunk(block, true);
+        debug("mowing " + block + " (" + canRegrow + ")");
+        chunk.markMowed(block, canRegrow);
+    }
 
-        Block block = chunk.getBlock(bx, 64, bz);
-        Biome biome = block.getBiome();
-        
-        Random random = new Random();
-        random.setSeed(chunk.getWorld().getSeed());
-        long i = random.nextLong() / 2L * 2L + 1L;
-        long j = random.nextLong() / 2L * 2L + 1L;
-
-        random.setSeed((long) chunk.getX() * i + (long) chunk.getZ() * j ^ chunk.getWorld().getSeed());
-        
-        int maxDensity = 0;
-        switch (biome) {
-        case FOREST:
-            maxDensity = 2;
-            break;
-
-        case RAINFOREST:
-            maxDensity = 10;
-            break;
-
-        case SEASONAL_FOREST:
-            maxDensity = 2;
-            break;
-
-        case TAIGA:
-            maxDensity = 1;
-            break;
-
-        case PLAINS:
-            maxDensity = 10;
-            break;
-        }
-
-        for (int n = 0; n < maxDensity; ++n) {
-            byte data = 1;
-
-            if (biome == Biome.RAINFOREST && random.nextInt(3) != 0) {
-                data = 2;
-            }
-
-            tx = bx + random.nextInt(16) + 8;
-            ty = random.nextInt(128);
-            tz = bz + random.nextInt(16) + 8;
-            // log("randomizing growth around " + tx + ", " + ty + ", " + tz + " based on " + bx + "x" + bz);
-            randomizeGrowth(chunk.getWorld(), random, Material.LONG_GRASS, data, tx, ty, tz);
-        }
-        
-        maxDensity = biome == Biome.DESERT ? 2 : 0;
-        
-        for (int n = 0; n < maxDensity; ++n) {
-            tx = bx + random.nextInt(16) + 8;
-            ty = random.nextInt(128);
-            tz = bz + random.nextInt(16) + 8;
-            randomizeGrowth(chunk.getWorld(), random, Material.DEAD_BUSH, (byte) 0, tx, ty, tz);
+    protected void debug(String string) {
+        if (getConfiguration().getBoolean("settings.debug", false)) {
+            log(string);
         }
     }
 
-    // almost identical to net.minecraft.server.WorldGenFlowers
-    private boolean randomizeGrowth(World world, Random random, Material material, byte data, int x, int y, int z) {
-        int targetBlockMaterialId = world.getBlockTypeIdAt(x, y, z);
-
-        while ((targetBlockMaterialId == 0 || targetBlockMaterialId == Material.LEAVES.getId()) && y > 0) {
-            targetBlockMaterialId = world.getBlockTypeIdAt(x, --y, z);
-        }
-
-        int max = material == Material.LONG_GRASS ? 128 : 4;
-        for (int n = 0; n < max; ++n) {
-            int tx = x + random.nextInt(8) - random.nextInt(8);
-            int ty = y + random.nextInt(4) - random.nextInt(4);
-            int tz = z + random.nextInt(8) - random.nextInt(8);
-            Block block = world.getBlockAt(tx, ty, tz);
-            if (block.getTypeId() == 0 && canGrowHere(block, material)) {
-                // log("Growing " + material + " at " + block.getLocation());
-                block.setTypeIdAndData(material.getId(), data, false);
-            }
-        }
-
-        return true;
+    public LGChunk getLGChunk(Block block, boolean createIfNotExist) {
+        return getLGChunk(block.getChunk(), createIfNotExist); 
+    }
+    
+    public LGChunk getLGChunk(Block block) {
+        return getLGChunk(block.getChunk(), false);     
     }
 
-    // same logic as in net.minecraft.server.BlockFlower/BlockDeadBush
-    private boolean canGrowHere(Block block, Material material) {
-        Material targetMaterial = block.getRelative(BlockFace.DOWN).getType();
-        return (block.getLightLevel() >= 8 && 
-                (
-                  (material == Material.LONG_GRASS && MaterialUtils.isSameMaterial(targetMaterial, Material.DIRT, Material.GRASS, Material.SOIL)) || 
-                  (material == Material.DEAD_BUSH && targetMaterial == Material.SAND))
-                );
+    public LGChunk getLGChunk(Chunk chunk) {
+        return getLGChunk(chunk, false);
+    }
+    
+    public LGChunk getLGChunk(Chunk chunk, boolean createIfNotExist) {
+        synchronized (chunks) {
+            LGChunk lgChunk = new LGChunk(chunk);
+            
+            if (createIfNotExist && !chunks.contains(lgChunk)) {
+                chunks.add(lgChunk);
+            }
+            
+            if (chunks.contains(lgChunk)) {
+                return chunks.get(chunks.indexOf(lgChunk));
+            }
+        }
+        
+        return null;
     }
 }

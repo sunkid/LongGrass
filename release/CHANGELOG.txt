@@ -1,6 +1,6 @@
 Listed below are released versions and cumulative changes between them
 
-Version ${project.version}
+Version 2
 * LongGrass now supports the re-growth of plants harvested with a specified tool
 * initial growth is more dense
 * added several configuration options related to re-growth
