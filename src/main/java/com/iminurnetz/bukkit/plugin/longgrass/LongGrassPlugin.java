@@ -103,6 +103,7 @@ public class LongGrassPlugin extends BukkitPlugin {
             fis.close();
         } catch (Exception e) {
             log(Level.SEVERE, "Cannot load cached chunks, starting from scratch", e);
+            chunks = new WorldSortedLGChunkList();
         }
     }
     
