@@ -68,8 +68,8 @@ public class LGConfigurationService extends ConfigurationService {
             }
         }
         
-        rainFactor = plugin.getConfiguration().getInt("rain-factor", DEFAULT_RAIN_FACTOR);
-        chunkListSize = plugin.getConfiguration().getInt("cache-size", MAX_CHUNK_LIST_SIZE);
+        setRainFactor(plugin.getConfiguration().getInt("rain-factor", DEFAULT_RAIN_FACTOR));
+        setChunkListSize(plugin.getConfiguration().getInt("cache-size", MAX_CHUNK_LIST_SIZE));
     }
 
     public boolean isUsingTool(Player player) {
@@ -111,5 +111,9 @@ public class LGConfigurationService extends ConfigurationService {
     
     public int getChunkListSize() {
         return chunkListSize;
+    }
+    
+    public void setChunkListSize(int chunkListSize) {
+        this.chunkListSize = chunkListSize;
     }
 }
