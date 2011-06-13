@@ -47,12 +47,12 @@ public class LongGrassPlugin extends BukkitPlugin {
     private LongGrassMonitor monitor;
     
     @Override
-    public void enablePlugin() throws Exception {
-        loadChunks();
-        
-        setGrower(LongGrassGrower.getInstance(this));
-        
+    public void enablePlugin() throws Exception {        
         config = new LGConfigurationService(this);
+
+        loadChunks();
+   
+        setGrower(LongGrassGrower.getInstance(this));
         
         // LGWorldListener worldListener = new LGWorldListener(this);
         LGPlayerListener playerListener = new LGPlayerListener(this);
@@ -86,12 +86,11 @@ public class LongGrassPlugin extends BukkitPlugin {
         log("disabled");
     }
 
-    @SuppressWarnings("unchecked")
     private void loadChunks() {
         
         File chunkCache = getChunksFile();
         if (!chunkCache.exists()) {
-            chunks = new WorldSortedLGChunkList();
+            chunks = new WorldSortedLGChunkList(config.getChunkListSize());
             return;
         }
         
@@ -101,9 +100,14 @@ public class LongGrassPlugin extends BukkitPlugin {
             chunks = (WorldSortedLGChunkList) in.readObject();
             in.close();
             fis.close();
+            
+            while (chunks.size() > config.getChunkListSize()) {
+                chunks.remove(0);
+            }
+            
         } catch (Exception e) {
             log(Level.SEVERE, "Cannot load cached chunks, starting from scratch", e);
-            chunks = new WorldSortedLGChunkList();
+            chunks = new WorldSortedLGChunkList(config.getChunkListSize());
         }
     }
     

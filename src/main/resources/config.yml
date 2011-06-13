@@ -5,7 +5,7 @@
 # CHANGE THE VERSION IN YOUR config.yml TO THE ONE BELOW.
 settings:
     # version of the last update of the config file
-    version: 2
+    version: 3
     
     # which tool(s) a player must use for plants to re-grow
     # tool specifications may exclude the material pre-fix
@@ -21,6 +21,9 @@ settings:
     
     # how much faster to re-grow plants during a storm
     rain-factor: 2
+    
+    # maximum number of chunks to cache
+    cache-size: 200
     
     # how chatty should we be?
     debug: false

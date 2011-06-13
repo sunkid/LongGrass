@@ -1,6 +1,12 @@
 Listed below are released versions and cumulative changes between them
 
 Version ${project.version}
+* addressed spurious NPE when reloading/stopping a server
+* added LRU implementation and configuration parameter for the chunk list (read: somewhat smarter caching)
+* compiled against RB860
+
+
+Version 2
 * LongGrass now supports the re-growth of plants harvested with a specified tool
 * initial growth is more dense
 * added several configuration options related to re-growth

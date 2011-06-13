@@ -30,6 +30,12 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class WorldSortedLGChunkList extends ArrayList<LGChunk> implements Serializable {
+    
+    private final int maxSize;
+    
+    protected WorldSortedLGChunkList(int maxSize) {
+        this.maxSize = maxSize;
+    }
 
     private static final long serialVersionUID = 1L;
     
@@ -53,6 +59,9 @@ public class WorldSortedLGChunkList extends ArrayList<LGChunk> implements Serial
         }
         
         super.add(index, chunk);
+        if (size() > maxSize) {
+            remove(0);
+        }
         
         if (!isSorted) {
             sort();
@@ -62,6 +71,11 @@ public class WorldSortedLGChunkList extends ArrayList<LGChunk> implements Serial
     @Override
     public boolean addAll(Collection<? extends LGChunk> chunks) {
         super.addAll(chunks);
+        
+        while (size() > maxSize) {
+            remove(0);
+        }
+        
         sort();
         return true;
     }
@@ -69,6 +83,11 @@ public class WorldSortedLGChunkList extends ArrayList<LGChunk> implements Serial
     @Override
     public boolean addAll(int index, Collection<? extends LGChunk> chunks) {
         super.addAll(index, chunks);
+
+        while (size() > maxSize) {
+            remove(0);
+        }
+        
         sort();
         return true;
     }

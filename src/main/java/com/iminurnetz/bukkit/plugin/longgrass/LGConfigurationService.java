@@ -38,17 +38,19 @@ import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class LGConfigurationService extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "2";
+    private static final String LAST_CHANGED_IN_VERSION = "3";
 
     private static final double DEFAULT_GROW_TIME = 600;
     private static final int DEFAULT_RAIN_FACTOR = 2;
     private static final String DEFAULT_TOOL = "HOE";
     private static final String[] DEFAULT_PLANTS = { "LONG_GRASS", "DEAD_BUSH" };
+    private static final int MAX_CHUNK_LIST_SIZE = 200;
 
     private String tool;
     private long growTime;
     private ArrayList<Item> materials;
     private int rainFactor;
+    private int chunkListSize;
 
     public LGConfigurationService(LongGrassPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);
@@ -67,6 +69,7 @@ public class LGConfigurationService extends ConfigurationService {
         }
         
         rainFactor = plugin.getConfiguration().getInt("rain-factor", DEFAULT_RAIN_FACTOR);
+        chunkListSize = plugin.getConfiguration().getInt("cache-size", MAX_CHUNK_LIST_SIZE);
     }
 
     public boolean isUsingTool(Player player) {
@@ -104,5 +107,9 @@ public class LGConfigurationService extends ConfigurationService {
 
     public int getRainFactor() {
         return rainFactor;
+    }
+    
+    public int getChunkListSize() {
+        return chunkListSize;
     }
 }

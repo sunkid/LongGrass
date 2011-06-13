@@ -29,6 +29,7 @@ import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -78,14 +79,16 @@ public class LongGrassGrower {
         long period = growthPeriod;
         
         World lastWorldProcessed = null;
+        int rainFactor = plugin.getConfig().getRainFactor();
+        Server server = plugin.getServer();
 
         for (LGChunk lgChunk : chunks) {
             synchronized (lgChunk) {
 
-                World world = plugin.getServer().getWorld(lgChunk.getWorld());
+                World world = server.getWorld(lgChunk.getWorld());
                 if (lastWorldProcessed == null || lastWorldProcessed != world) {
                     lastWorldProcessed = world;
-                    period = world.hasStorm() ? growthPeriod / plugin.getConfig().getRainFactor() : growthPeriod;
+                    period = world.hasStorm() ? growthPeriod / rainFactor : growthPeriod;
                 }
                 
                 if (lgChunk.getLastMowed() == null || now.before(new Date(lgChunk.getLastMowed().getTime() + period))) {
@@ -103,7 +106,7 @@ public class LongGrassGrower {
 
                 Chunk chunk = world.getChunkAt(lgChunk.getX(), lgChunk.getZ());
                 plugin.debug("Processing " + chunk + " (" + wasLoaded + ")");
-
+                
                 Hashtable<LGCoordinate, Date> lastMowed = lgChunk.getBlockLastMowed();
                 Hashtable<LGCoordinate, SerializableBlockType> plants = lgChunk.getPlantMaterial();
 
@@ -201,7 +204,9 @@ public class LongGrassGrower {
             tx = bx + random.nextInt(16) + 8;
             ty = random.nextInt(128);
             tz = bz + random.nextInt(16) + 8;
+            
             plugin.debug("randomizing growth around " + tx + ", " + ty + ", " + tz + " based on " + bx + "x" + bz);
+            
             randomizeGrowth(chunk, random, Material.LONG_GRASS, data, tx, ty, tz);
         }
         
