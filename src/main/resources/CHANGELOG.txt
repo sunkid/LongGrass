@@ -1,6 +1,9 @@
 Listed below are released versions and cumulative changes between them
 
 Version ${project.version}
+* fixed ConcurrentModificationException and worked around the monitor thread stopping
+
+Version 3
 * addressed spurious NPE when reloading/stopping a server
 * added LRU implementation and configuration parameter for the chunk list (read: somewhat smarter caching)
 * compiled against RB860

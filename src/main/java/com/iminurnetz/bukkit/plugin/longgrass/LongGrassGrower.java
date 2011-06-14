@@ -25,6 +25,7 @@ package com.iminurnetz.bukkit.plugin.longgrass;
 
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.bukkit.Chunk;
@@ -82,10 +83,16 @@ public class LongGrassGrower {
         int rainFactor = plugin.getConfig().getRainFactor();
         Server server = plugin.getServer();
 
-        for (LGChunk lgChunk : chunks) {
+        for (Iterator<LGChunk> iterator = chunks.iterator(); iterator.hasNext(); ) {
+            LGChunk lgChunk = iterator.next();
             synchronized (lgChunk) {
 
                 World world = server.getWorld(lgChunk.getWorld());
+                if (world == null) {
+                    iterator.remove();
+                    continue;
+                }
+                
                 if (lastWorldProcessed == null || lastWorldProcessed != world) {
                     lastWorldProcessed = world;
                     period = world.hasStorm() ? growthPeriod / rainFactor : growthPeriod;

@@ -23,6 +23,8 @@
  */
 package com.iminurnetz.bukkit.plugin.longgrass;
 
+import java.util.logging.Level;
+
 /**
  * Daemon thread to periodically re-grow plants.
  * @author <a href="mailto:sunkid@iminurnetz.com">sunkid</a>
@@ -33,10 +35,12 @@ public class LongGrassMonitor implements Runnable {
     private static final long INTERVAL = 10000;
     private final LongGrassPlugin plugin;
     private boolean stopped;
+    private int errorCount;
     
     public LongGrassMonitor(LongGrassPlugin plugin) {
         this.plugin = plugin;
         this.stopped = false;
+        this.errorCount = 0;
     }
     
     @Override
@@ -48,13 +52,16 @@ public class LongGrassMonitor implements Runnable {
             // ignored
         }
 
-        while (!stopped) {
-            plugin.getGrower().regrowPlants();
-            
+        while (!stopped) {            
             try {
+                plugin.getGrower().regrowPlants();
                 Thread.sleep(INTERVAL);
-            } catch (InterruptedException e) {
-                // ignored
+            } catch (Exception e) {
+                // ignored until we had enough
+                if (errorCount++ > 10) {
+                    plugin.log(Level.SEVERE, "Too many errors in LongGrassMonitor. Last trace:", e);
+                    return;
+                }
             }
         }
         

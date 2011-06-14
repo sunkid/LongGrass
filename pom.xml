@@ -4,7 +4,7 @@
   <groupId>com.iminurnetz</groupId>
   <artifactId>bukkit.longgrass-plugin</artifactId>
   <name>LongGrass</name>
-  <version>3</version>
+  <version>3.1</version>
   <packaging>jar</packaging>
   <description>LongGrass plugin for Bukkit servers</description>
   <properties>
