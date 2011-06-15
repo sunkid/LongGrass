@@ -29,10 +29,9 @@ LICENSE_TXT
 
 my @dirs = ();
 my $dir = $0;
-$dir =~ s/\/[^\/]*//;
-push @dirs, $dir . "/../../src/main/java/com/iminurnetz";
+$dir =~ s/\/[^\/]*$//;
+push @dirs, $dir . "/../../plugin/src/main/java/com/iminurnetz";
 push @dirs, $dir . "/../src/main/java/com/iminurnetz";
-
 
 find(\&wanted, @dirs);
 
@@ -68,8 +67,8 @@ sub wanted {
 	close OUT;
 	if ($inLicense) {
 		unlink "$file.tmp";
-		print STDERR "$File::Find::name unchanged\n";
 	} else {
+		print STDERR "license added to $File::Find::name\n";
 		rename "$file.tmp", $file or die "Cannot rename $file.tmp to $file\n";
 	}
 }
