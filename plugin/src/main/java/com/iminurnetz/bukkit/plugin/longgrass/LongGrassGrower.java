@@ -171,6 +171,10 @@ public class LongGrassGrower {
         Block block = chunk.getBlock(bx, 64, bz);
         Biome biome = block.getBiome();
         
+        if (biome == null) {
+            return;
+        }
+        
         Random random = new Random();
         random.setSeed(chunk.getWorld().getSeed());
         long i = random.nextLong() / 2L * 2L + 1L;
@@ -225,6 +229,15 @@ public class LongGrassGrower {
             tz = bz + random.nextInt(16) + 8;
             randomizeGrowth(chunk, random, Material.DEAD_BUSH, (byte) 0, tx, ty, tz);
         }
+        
+        if (random.nextInt(32) == 0 && plugin.getConfig().seePumpkins()) {
+            tx = bx + random.nextInt(16) + 8;
+            ty = random.nextInt(128);
+            tz = bz + random.nextInt(16) + 8;
+            randomizeGrowth(chunk, random, Material.PUMPKIN, (byte) random.nextInt(4), tx, ty, tz);
+        }
+
+
     }
 
     // almost identical to net.minecraft.server.WorldGenFlowers
@@ -237,13 +250,28 @@ public class LongGrassGrower {
             targetBlockMaterialId = world.getBlockTypeIdAt(x, --y, z);
         }
 
-        int max = material == Material.LONG_GRASS ? 128 : 4;
+        int max = 0;
+        
+        switch(material) {
+        case LONG_GRASS:
+            max = 128;
+            break;
+
+        case DEAD_BUSH:
+            max = 4;
+            break;
+
+        case PUMPKIN:
+            max = 64;
+            break;
+        }
+        
         for (int n = 0; n < max; ++n) {
             int tx = x + random.nextInt(8) - random.nextInt(8);
             int ty = y + random.nextInt(4) - random.nextInt(4);
             int tz = z + random.nextInt(8) - random.nextInt(8);
             Block block = world.getBlockAt(tx, ty, tz);
-            if (block.getTypeId() == 0 && canGrowHere(block, material)) {
+            if (canGrowHere(block, material)) {
                 plugin.debug("Growing " + material + " at " + block.getLocation());
                 block.setTypeIdAndData(material.getId(), data, false);
                 
@@ -262,13 +290,15 @@ public class LongGrassGrower {
     }
 
     // same logic as in net.minecraft.server.BlockFlower/BlockDeadBush
-    private boolean canGrowHere(Block block, Material material) {
-        Material targetMaterial = block.getRelative(BlockFace.DOWN).getType();
-        return (block.getLightLevel() >= 8 && 
-                
-                (
-                  (material == Material.LONG_GRASS && MaterialUtils.isSameMaterial(targetMaterial, Material.DIRT, Material.GRASS, Material.SOIL)) || 
-                  (material == Material.DEAD_BUSH && targetMaterial == Material.SAND))
+    private boolean canGrowHere(Block block, Material plant) {
+        Material substrate = block.getRelative(BlockFace.DOWN).getType();
+        boolean targetIsAir = block.getTypeId() == 0;
+        return (
+                (block.getLightLevel() >= 8 &&                 
+                        ((plant == Material.LONG_GRASS && targetIsAir && MaterialUtils.isSameMaterial(substrate, Material.DIRT, Material.GRASS, Material.SOIL)) || 
+                         (plant == Material.DEAD_BUSH && targetIsAir && substrate == Material.SAND)
+                         )) ||
+                (plant == Material.PUMPKIN && (targetIsAir || block.getType() == Material.SNOW) && substrate == Material.GRASS)
                 );
     }
 

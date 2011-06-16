@@ -5,11 +5,14 @@
 # CHANGE THE VERSION IN YOUR config.yml TO THE ONE BELOW.
 settings:
     # version of the last update of the config file
-    version: 3
+    version: 3.2
     
     # which tool(s) a player must use for plants to re-grow
     # tool specifications may exclude the material pre-fix
     tool: hoe
+    
+    # grow pumpkins "from seed"?
+    seed-pumpkins: false
     
     # the plants (or any blocks) that will be "re-grown"
     plants:
@@ -24,6 +27,11 @@ settings:
     
     # maximum number of chunks to cache
     cache-size: 200
+    
+    # don't run on this set of worlds
+    disabled-worlds:
+    - skylands
+    - pvp
     
     # how chatty should we be?
     debug: false

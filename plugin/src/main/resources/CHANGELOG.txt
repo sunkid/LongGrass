@@ -1,6 +1,9 @@
 Listed below are released versions and cumulative changes between them
 
 Version ${project.version}
+* added ability to disable specific worlds
+* added the ability to grow pumpkins from seed
+* fixed an NPE when world has no biome data
 * re-worked the project directories and added the BaseBukkitPlugin dependency
 
 Version 3.1

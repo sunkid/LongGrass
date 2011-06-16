@@ -183,7 +183,7 @@ public class LongGrassPlugin extends BukkitPlugin {
         synchronized (chunks) {
             LGChunk lgChunk = new LGChunk(chunk);
             
-            if (createIfNotExist && !chunks.contains(lgChunk)) {
+            if (createIfNotExist && !chunks.contains(lgChunk) && config.isWorldDisabled(lgChunk.getWorld())) {
                 chunks.add(lgChunk);
             }
             

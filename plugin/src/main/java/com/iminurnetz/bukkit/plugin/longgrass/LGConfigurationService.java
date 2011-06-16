@@ -25,6 +25,8 @@ package com.iminurnetz.bukkit.plugin.longgrass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -38,7 +40,7 @@ import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class LGConfigurationService extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "3";
+    private static final String LAST_CHANGED_IN_VERSION = "3.2";
 
     private static final double DEFAULT_GROW_TIME = 600;
     private static final int DEFAULT_RAIN_FACTOR = 2;
@@ -51,6 +53,8 @@ public class LGConfigurationService extends ConfigurationService {
     private ArrayList<Item> materials;
     private int rainFactor;
     private int chunkListSize;
+    private List<String> disabledWorlds;
+    boolean pumpkins = false;
 
     public LGConfigurationService(LongGrassPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);
@@ -68,8 +72,13 @@ public class LGConfigurationService extends ConfigurationService {
             }
         }
         
-        setRainFactor(plugin.getConfiguration().getInt("rain-factor", DEFAULT_RAIN_FACTOR));
-        setChunkListSize(plugin.getConfiguration().getInt("cache-size", MAX_CHUNK_LIST_SIZE));
+        setRainFactor(plugin.getConfiguration().getInt("settings.rain-factor", DEFAULT_RAIN_FACTOR));
+        setChunkListSize(plugin.getConfiguration().getInt("settings.cache-size", MAX_CHUNK_LIST_SIZE));
+        
+        disabledWorlds = new ArrayList<String>();
+        disabledWorlds.addAll(plugin.getConfiguration().getStringList("settings.disabled-worlds", Collections.EMPTY_LIST));
+        
+        pumpkins = plugin.getConfiguration().getBoolean("settings.seed-pumpkins", pumpkins);
     }
 
     public boolean isUsingTool(Player player) {
@@ -115,5 +124,13 @@ public class LGConfigurationService extends ConfigurationService {
     
     public void setChunkListSize(int chunkListSize) {
         this.chunkListSize = chunkListSize;
+    }
+
+    public boolean isWorldDisabled(String world) {
+        return disabledWorlds.contains(world);
+    }
+
+    public boolean seePumpkins() {
+        return pumpkins;
     }
 }

@@ -1,4 +1,4 @@
-LongGrass v3.1 build 61.20110615
+LongGrass v3.2 build 72.20110616
 
 INSTALL and UPGRADE
 

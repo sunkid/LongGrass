@@ -10,7 +10,7 @@
 	<description>LongGrass plugin for Bukkit servers</description>
 	<parent>
 		<groupId>com.iminurnetz</groupId>
-		<artifactId>bukkit.plugin</artifactId>
+		<artifactId>bukkit.plugin-parent</artifactId>
 		<version>1.0</version>
 	</parent>
 	<properties>
@@ -21,8 +21,6 @@
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>0.0.1-CHUNK</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.iminurnetz</groupId>
