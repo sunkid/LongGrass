@@ -36,6 +36,7 @@ public class LGWorldListener extends WorldListener {
         this.plugin = plugin;
     }
 
+    /*
     @Override
     public void onChunkLoad(ChunkLoadEvent event) {
         if (event.isNewChunk()) {
@@ -44,6 +45,7 @@ public class LGWorldListener extends WorldListener {
             plugin.getGrower().populateChunk(event.getChunk());
         }
     }
+    */
     
     // not yet in Bukkit/CraftBukkit
     public void onWorldLoad(WorldLoadEvent event) {

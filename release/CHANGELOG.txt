@@ -1,5 +1,8 @@
 Listed below are released versions and cumulative changes between them
 
+Version 3.3
+* bug fix
+
 Version 3.2
 * added ability to disable specific worlds
 * added the ability to grow pumpkins from seed
