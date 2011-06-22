@@ -156,7 +156,11 @@ public class LongGrassPlugin extends BukkitPlugin {
     }
 
     public void markMowed(Block block, boolean canRegrow) {
-        LGChunk chunk = getLGChunk(block, true);
+        LGChunk chunk = getLGChunk(block.getChunk(), true);
+        if (chunk == null) {
+            return;
+        }
+
         debug("mowing " + block + " (" + canRegrow + ")");
         chunk.markMowed(block, canRegrow);
     }
@@ -167,18 +171,6 @@ public class LongGrassPlugin extends BukkitPlugin {
         }
     }
 
-    public LGChunk getLGChunk(Block block, boolean createIfNotExist) {
-        return getLGChunk(block.getChunk(), createIfNotExist); 
-    }
-    
-    public LGChunk getLGChunk(Block block) {
-        return getLGChunk(block.getChunk(), false);     
-    }
-
-    public LGChunk getLGChunk(Chunk chunk) {
-        return getLGChunk(chunk, false);
-    }
-    
     public LGChunk getLGChunk(Chunk chunk, boolean createIfNotExist) {
         synchronized (chunks) {
             LGChunk lgChunk = new LGChunk(chunk);

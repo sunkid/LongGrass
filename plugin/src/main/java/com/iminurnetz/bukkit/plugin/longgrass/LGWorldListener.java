@@ -24,7 +24,6 @@
 package com.iminurnetz.bukkit.plugin.longgrass;
 
 import org.bukkit.Chunk;
-import org.bukkit.event.world.ChunkCreateEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldListener;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -39,14 +38,11 @@ public class LGWorldListener extends WorldListener {
 
     @Override
     public void onChunkLoad(ChunkLoadEvent event) {
-        plugin.getGrower().populateChunk(event.getChunk());
-    }
-    
-    @Override
-    public void onChunkCreate(ChunkCreateEvent event) {
-        Chunk chunk = event.getChunk();
-        // plugin.log("new chunk created at " + chunk.getX() + "x" + chunk.getZ() + " in world " + chunk.getWorld().getName());
-        plugin.getChunks().add(new LGChunk(chunk));
+        if (event.isNewChunk()) {
+            plugin.getChunks().add(new LGChunk(event.getChunk()));
+        } else {
+            plugin.getGrower().populateChunk(event.getChunk());
+        }
     }
     
     // not yet in Bukkit/CraftBukkit
