@@ -151,7 +151,7 @@ public class LongGrassPlugin extends BukkitPlugin {
         this.chunks.addAll(chunks);
     }
     
-    protected LGConfigurationService getConfig() {
+    protected LGConfigurationService getLGConfigurationService() {
         return config;
     }
 

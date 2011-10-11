@@ -76,11 +76,11 @@ public class LongGrassGrower {
     
     public void regrowPlants() {        
         Date now = new Date();
-        long growthPeriod = 1000 * (long) plugin.getConfig().getGrowTime();
+        long growthPeriod = 1000 * (long) plugin.getLGConfigurationService().getGrowTime();
         long period = growthPeriod;
         
         World lastWorldProcessed = null;
-        int rainFactor = plugin.getConfig().getRainFactor();
+        int rainFactor = plugin.getLGConfigurationService().getRainFactor();
         Server server = plugin.getServer();
 
         for (Iterator<LGChunk> iterator = chunks.iterator(); iterator.hasNext(); ) {
@@ -230,7 +230,7 @@ public class LongGrassGrower {
             randomizeGrowth(chunk, random, Material.DEAD_BUSH, (byte) 0, tx, ty, tz);
         }
         
-        if (random.nextInt(32) == 0 && plugin.getConfig().seePumpkins()) {
+        if (random.nextInt(32) == 0 && plugin.getLGConfigurationService().seePumpkins()) {
             tx = bx + random.nextInt(16) + 8;
             ty = random.nextInt(128);
             tz = bz + random.nextInt(16) + 8;

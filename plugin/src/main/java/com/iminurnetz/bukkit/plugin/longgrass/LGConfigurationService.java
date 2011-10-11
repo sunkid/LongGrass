@@ -26,12 +26,12 @@ package com.iminurnetz.bukkit.plugin.longgrass;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.iminurnetz.bukkit.plugin.util.ConfigurationService;
@@ -40,7 +40,7 @@ import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class LGConfigurationService extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "3.2";
+    private static final double LAST_CHANGED_IN_VERSION = 3.2;
 
     private static final double DEFAULT_GROW_TIME = 600;
     private static final int DEFAULT_RAIN_FACTOR = 2;
@@ -59,11 +59,13 @@ public class LGConfigurationService extends ConfigurationService {
     public LGConfigurationService(LongGrassPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);
         
-        setTool(plugin.getConfiguration().getString("settings.tool", DEFAULT_TOOL));
-        setGrowTime((long) plugin.getConfiguration().getDouble("settings.grow-time", DEFAULT_GROW_TIME));
+        FileConfiguration config = getConfiguration();
+
+        setTool(config.getString("settings.tool", DEFAULT_TOOL));
+        setGrowTime((long) config.getDouble("settings.grow-time", DEFAULT_GROW_TIME));
         
         materials = new ArrayList<Item>();
-        List<String> plants = plugin.getConfiguration().getStringList("settings.plants", Arrays.asList(DEFAULT_PLANTS));
+        List<String> plants = config.getList("settings.plants", Arrays.asList(DEFAULT_PLANTS));
         for (String plant : plants) {
             try {
                 materials.add(new Item(plant));
@@ -72,13 +74,13 @@ public class LGConfigurationService extends ConfigurationService {
             }
         }
         
-        setRainFactor(plugin.getConfiguration().getInt("settings.rain-factor", DEFAULT_RAIN_FACTOR));
-        setChunkListSize(plugin.getConfiguration().getInt("settings.cache-size", MAX_CHUNK_LIST_SIZE));
+        setRainFactor(config.getInt("settings.rain-factor", DEFAULT_RAIN_FACTOR));
+        setChunkListSize(config.getInt("settings.cache-size", MAX_CHUNK_LIST_SIZE));
         
         disabledWorlds = new ArrayList<String>();
-        disabledWorlds.addAll(plugin.getConfiguration().getStringList("settings.disabled-worlds", Collections.EMPTY_LIST));
+        disabledWorlds.addAll(config.getList("settings.disabled-worlds", Collections.EMPTY_LIST));
         
-        pumpkins = plugin.getConfiguration().getBoolean("settings.seed-pumpkins", pumpkins);
+        pumpkins = config.getBoolean("settings.seed-pumpkins", pumpkins);
     }
 
     public boolean isUsingTool(Player player) {

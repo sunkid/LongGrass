@@ -43,8 +43,8 @@ public class LGBlockListener extends BlockListener {
             return;
         }
 
-        if (plugin.getConfig().isPlantOfInterest(block)) {
-            plugin.markMowed(block, plugin.getConfig().isUsingTool(player));
+        if (plugin.getLGConfigurationService().isPlantOfInterest(block)) {
+            plugin.markMowed(block, plugin.getLGConfigurationService().isUsingTool(player));
         }
     }
 }
