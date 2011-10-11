@@ -26,40 +26,33 @@ package com.iminurnetz.bukkit.permissions;
 
 import org.bukkit.entity.Player;
 
-public class DefaultPermissions implements PermissionHandler {
+import ru.tehkode.permissions.PermissionManager;
+import ru.tehkode.permissions.PermissionUser;
 
-	private boolean defaultPermission = false;
-	private boolean enableOps = true;
+public class PermissionsExPermissions implements PermissionHandler {
+
+    private PermissionManager handler;
 	
-	public DefaultPermissions(boolean defaultPermission) {
-		this.defaultPermission = defaultPermission;
+    protected void setHandler(PermissionManager handler) {
+		this.handler = handler;
 	}
-	
-	public void allowEverything() {
-		defaultPermission = true;
-	}
-	
-	public void denyEverything() {
-		defaultPermission = false;
-	}
-	
-	public void enableOps(boolean bool) {
-		this.enableOps = bool;
-	}
-	
-    @Override
+
+	@Override
 	public boolean hasPermission(Player player, String permission) {
-        return (defaultPermission || (enableOps && player.isOp()) || player.hasPermission(permission));
+        return handler.has(player, permission);
 	}
 
     @Override
+    // TODO: fix for better multi-group support
     public String getGroup(Player player) {
-         return null;
+        PermissionUser user = handler.getUser(player);
+        return user.getGroups(player.getWorld().getName())[0].getName();
     }
 
     @Override
     public boolean parentGroupsInclude(Player player, String group) {
-        return false;
+        PermissionUser user = handler.getUser(player);
+        return user.inGroup(group, player.getWorld().getName(), true);
     }
 
 }

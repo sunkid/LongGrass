@@ -103,42 +103,6 @@ public class MaterialUtils {
 			Material.CAKE
 				);
 	
-	public static List<Material> stackableMaterial = new ArrayList<Material>();
-	public static List<Material> stackableItems =
-		Arrays.asList(
-			Material.ARROW,
-			Material.COAL,
-			Material.DIAMOND,
-			Material.IRON_INGOT,
-			Material.GOLD_INGOT,
-			Material.STICK,
-			Material.BOWL,
-			Material.STRING,
-			Material.FEATHER,
-			Material.SULPHUR,
-			Material.SEEDS,
-			Material.WHEAT,
-			Material.FLINT,
-			Material.PAINTING,
-			Material.REDSTONE,
-			Material.SNOW_BALL,
-			Material.LEATHER,
-			Material.CLAY_BRICK,
-			Material.CLAY_BALL,
-			Material.SUGAR_CANE,
-			Material.PAPER,
-			Material.BOOK,
-			Material.SLIME_BALL,
-			Material.EGG,
-			Material.COMPASS,
-			Material.FISHING_ROD,
-			Material.WATCH,
-			Material.GLOWSTONE_DUST,
-			Material.INK_SACK,
-			Material.BONE,
-			Material.SUGAR
-				);
-
 	public static Map<Material, String> pluralWords = new HashMap<Material, String>();
 	static {
 		for (Material m : Material.values()) {
@@ -214,13 +178,9 @@ public class MaterialUtils {
 		pluralWords.put(Material.DIODE_BLOCK_ON, "diode blocks (on)");
 	}
 	
-	static {
-		for (Material m : Material.values())
-			if (m.isBlock())
-				stackableMaterial.add(m);
-		damageableMaterial.addAll(stackableMaterial);
+    static {
+        // damageableMaterial.addAll(stackableMaterial);
 		damageableMaterial.addAll(damageableItems);
-		stackableMaterial.addAll(stackableItems);
 	}
 	
 	public static Material getMaterialByName(String name) {
@@ -461,6 +421,23 @@ public class MaterialUtils {
     
     public static boolean canDropSeeds(Material m) {
         return isSameMaterial(m, Material.LONG_GRASS, Material.DEAD_BUSH, Material.CROPS);
+    }
+
+    public static boolean isHarvestablePlant(Material m) {
+        return isSameMaterial(m, Material.LONG_GRASS, Material.DEAD_BUSH, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.CACTUS, Material.SAPLING) ||
+               isFlower(m) || isMushroom(m) || isPumpkin(m);
+    }
+
+    public static boolean isPumpkin(Material m) {
+        return isSameMaterial(m, Material.PUMPKIN, Material.JACK_O_LANTERN);
+    }
+
+    public static boolean isRail(Material m) {
+        return isSameMaterial(m, Material.RAILS, Material.POWERED_RAIL, Material.DETECTOR_RAIL);
+    }
+
+    public static boolean isTorch(Material m) {
+        return (m != null && m.name().contains("TORCH"));
     }
 
     /**
@@ -708,7 +685,7 @@ public class MaterialUtils {
 	}
 
 	public static boolean isStackable(Material m) {
-		return stackableMaterial.contains(m);
+        return m.getMaxStackSize() != 1;
 	}
 
 	public static boolean isDamageable(int id) {
@@ -716,7 +693,7 @@ public class MaterialUtils {
 	}
 	
 	public static boolean isDamageable(Material m) {
-		return damageableMaterial.contains(m);
+        return damageableMaterial.contains(m) || m.getMaxStackSize() != 1;
 	}
 
 	// original code from Nijikokun's Items class
@@ -843,10 +820,11 @@ public class MaterialUtils {
 	}
 
     public static boolean isTraversable(Material m) {
-        return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) || isDiode(m) ||
+        return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) ||
+               isDiode(m) || isRail(m) ||
                isSameMaterial(m, Material.AIR, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.SAPLING,
-                       Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL, Material.LONG_GRASS,
-                       Material.DEAD_BUSH);
+                       Material.REDSTONE_WIRE, Material.STONE_BUTTON, Material.PORTAL, Material.LONG_GRASS,
+                       Material.DEAD_BUSH, Material.SNOW, Material.WEB, Material.FIRE);
                
     }
 
