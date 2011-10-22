@@ -5,7 +5,7 @@
 	<groupId>com.iminurnetz</groupId>
 	<artifactId>bukkit.longgrass-plugin</artifactId>
 	<name>LongGrass</name>
-	<version>3.3.1</version>
+	<version>3.4</version>
 	<packaging>jar</packaging>
 	<description>LongGrass plugin for Bukkit servers</description>
 	<parent>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.iminurnetz</groupId>
 			<artifactId>bukkit.basebukkitplugin</artifactId>
-			<version>1.7</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -113,6 +113,7 @@
 									<includes>
 										<include>CHANGELOG.txt</include>
 										<include>README.txt</include>
+										<include>version.txt</include>
 									</includes>
 								</resource>
 							</resources>
